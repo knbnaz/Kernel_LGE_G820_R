@@ -27,9 +27,8 @@ jobs:
       - name: Pull Android toolchain
         if: steps.cache-build-env.outputs.cache-hit != 'true'
         run: |
-          wget -q "https://github.com/Neutron-Toolchains/clang-build-catalogue/releases/download/10032024/neutron-clang-10032024.tar.zst" -O "lg.tar.zst"
-          mkdir clang && tar -I zstd -cvf lg.tar.zst clang
-          rm -rf lg.tar.gz
+          wget -q "https://gitlab.com/XSans0/weebx-clang/-/archive/release/15-gr/weebx-clang-release-15-gr.tar.gz" -O "weebx-clang.tar.gz"
+          mkdir clang && tar -xf weebx-clang.tar.gz -C clang --strip-components=1 && rm -rf weebx-clang.tar.gz
       - name: Save Android toolchain
         if: steps.cache-build-env.outputs.cache-hit != 'true'
         uses: actions/cache/save@v3
@@ -48,7 +47,7 @@ jobs:
           export PATH="$(pwd)/clang/bin:$(pwd)/clang/aarch64-linux-gnu/bin:$(pwd)/clang/arm-linux-gnueabi/bin:$PATH"
           cd kernel
           make ARCH=arm64 O=out CC=clang LD=ld.lld CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- CLANG_TRIPLE=aarch64-linux-gnu- vendor/dragon_alpha_defconfig
-          cd out && ../scripts/kconfig/merge_config.sh -m .config ../arch/arm64/configs/vendor/aosp_flash_defconfig && cd ..
+          cd out && ../scripts/kconfig/merge_config.sh -m .config ../arch/arm64/configs/vendor/dragon_alpha_defconfig && cd ..
           yes "" | make ARCH=arm64 O=out CC=clang LD=ld.lld CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- CLANG_TRIPLE=aarch64-linux-gnu- oldconfig
           make -j$(nproc --all) ARCH=arm64 O=out CC=clang LD=ld.lld CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- CLANG_TRIPLE=aarch64-linux-gnu- 2>&1 | tee build.log
       
